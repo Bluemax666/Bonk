@@ -32,7 +32,8 @@ class Bonk():
            self.game_window_coords = [180,384,760,780]
            self.hsv_ball_color = np.array([7, 110, 255])
        
-       self.tracking_mode = 'mouse' #'numpad' or 'mouse'    
+       self.tracking_mode = 'mouse' #'numpad' or 'mouse'
+       #control_keys :     [Up, Down, Left, Right, heavy]
        self.control_keys = [D_W, D_S, D_A, D_D, D_X]
        self.track_offscreen = True
        self.maximize_speed = False #does not work well on all jumps
