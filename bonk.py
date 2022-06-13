@@ -48,6 +48,7 @@ class Bonk():
        self.acceleration_list = deque(maxlen=self.avg_len)
        self.error_list = deque(maxlen=self.avg_len)
        self.target_distance = 1
+       self.target_attainability = 0
        
        self.ball_radius = 10
        self.ball_pos = (-1,-1)
@@ -74,12 +75,13 @@ class Bonk():
     def getBall(self):
         frame = grabScreen(self.game_window_coords)
         BGR_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        
         HSV_frame = cv2.cvtColor(BGR_frame, cv2.COLOR_BGR2HSV)
-      
         mask_range = np.array([5,5,5])
         mask_lower = np.clip(self.hsv_ball_color - mask_range, 0, 255)
         mask_upper =  np.clip(self.hsv_ball_color + mask_range, 0, 255)
-        mask = cv2.inRange(HSV_frame, np.array(mask_lower, np.uint8) , np.array(mask_upper, np.uint8))  
+        mask = cv2.inRange(HSV_frame, np.array(mask_lower, np.uint8) , np.array(mask_upper, np.uint8))
+        
         
         M = cv2.moments(mask)
         if M["m00"] != 0:
@@ -191,6 +193,7 @@ class Bonk():
         error_x = t_x - self.getFuturePos(self.ball_pos, time_y_reached)[0]
         
         self.target_distance = self.getDist(self.ball_pos, self.target_pos)
+        self.target_attainability = self.getTargetAttainability(self.target_pos)
         
         self.error_list.append((error_x, error_y))
         
@@ -375,8 +378,6 @@ class Bonk():
             attainability = -1 * angle_base_target / (angle_base_low + 1e-5)
             
         attainability = np.clip((attainability - 0.5) * 2, -2 , 2)  
-            
-        self.target_attainability = attainability
         
         return attainability
         
@@ -424,51 +425,43 @@ class Bonk():
         
     def mainLoop(self):
         while True:
-            is_ball, pos, radius = bonk.getBall()
+            is_ball, pos, radius = self.getBall()
             if is_ball:
-                bonk.updateMovementInfo(pos)
+                self.updateMovementInfo(pos)
                 
-            elif bonk.track_offscreen:
-                bonk.tickPhysics()
+            elif self.track_offscreen:
+                self.tickPhysics()
                 is_ball = True
             
             if is_ball:
-                #print("fps : ", bonk.frame_rate)
-                bonk.getTargetAttainability(bonk.target_pos)
-                bonk.showPreview()
+                #print("fps : ", self.frame_rate)
+                self.showPreview()
                 
                 if self.tracking_mode == 'mouse':
-                    follow_target = bonk.updateTargetMouse()
+                    follow_target = self.updateTargetMouse()
                 elif self.tracking_mode == 'numpad':
-                    follow_target = bonk.updateTargetNumpad()
+                    follow_target = self.updateTargetNumpad()
                 
                 if follow_target:
-                    traj_error = bonk.getErrorFromTarget(bonk.target_pos)
-                    controls = bonk.getControls(traj_error)
-                    bonk.applyControls(controls)
+                    traj_error = self.getErrorFromTarget(self.target_pos)
+                    controls = self.getControls(traj_error)
+                    self.applyControls(controls)
                 
                 else:
-                    bonk.applyControls([0,0,0,0,0])
+                    self.applyControls([0,0,0,0,0])
                 
             else:
-                time.sleep(1/bonk.frame_rate)
+                time.sleep(1/self.frame_rate)
             
             keys = getKeys()
             if 'P' in keys:
                 cv2.destroyAllWindows()
                 break
             
-            bonk.updateFramerate()
+            self.updateFramerate()
         
     
 
 bonk = Bonk()
 
 bonk.mainLoop()
-
-
-        
-        
-         
-
-       
