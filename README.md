@@ -16,3 +16,5 @@ There is 2 modes of automatic control of the ball:
 if self.tracking_mode = 'mouse' in the bonk.py script, it will try to follow the mouse (on the game window not the preview) while you press the left mouse click
 if self.tracking_mode = 'numpad', you can register 10 positions by pressing : left mouse + a number key (numbers above the letters on the keyboard) and it will register that this number corresponds to your mouse position. 
 Then you just have to press the number key you want to make the ball go toward the correspnding number target.  
+
+If you install a recent version of python with anaconda, you should only need to install opencv with the command: pip install opencv-python 
