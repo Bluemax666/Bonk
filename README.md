@@ -18,3 +18,5 @@ if self.tracking_mode = 'numpad', you can register 10 positions by pressing : le
 Then you just have to press the number key you want to make the ball go toward the correspnding number target.  
 
 If you install a recent version of python with anaconda, you should only need to install opencv with the command: pip install opencv-python 
+
+video demonstration : https://www.reddit.com/r/bonkio/comments/v547ai/i_made_a_python_script_that_can_predict_and/
