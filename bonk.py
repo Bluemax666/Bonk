@@ -18,9 +18,13 @@ from utils.getKeys import getKeys
 
 
 class Bonk():
-    def __init__(self):
+    def __init__(self, game_window_coords=None, hsv_ball_color=None):
         
-       if exists("setup_bonk.json"):
+       if game_window_coords is not None and hsv_ball_color is not None:
+           self.game_window_coords = game_window_coords
+           self.hsv_ball_color = hsv_ball_color
+        
+       elif exists("setup_bonk.json"):
            with open("setup_bonk.json") as f:
                setup_variables = json.load(f)
            
@@ -28,7 +32,7 @@ class Bonk():
            self.game_window_coords = setup_variables['game_window_coords']
            self.hsv_ball_color = np.array(setup_variables['hsv_ball_color'])
           
-       else:    
+       else:   
            self.game_window_coords = [180,384,760,780]
            self.hsv_ball_color = np.array([7, 110, 255])
        
@@ -45,7 +49,9 @@ class Bonk():
        self.avg_len = 5
        self.position_list = deque(maxlen=self.avg_len)
        self.velocity_list = deque(maxlen=self.avg_len)
+       self.velocity_value_list = deque(maxlen=self.avg_len)
        self.acceleration_list = deque(maxlen=self.avg_len)
+       self.acceleration_value_list = deque(maxlen=self.avg_len)
        self.error_list = deque(maxlen=self.avg_len)
        self.target_distance = 1
        self.target_attainability = 0
@@ -55,8 +61,10 @@ class Bonk():
        self.target_pos = (-1,-1)
        self.target_list = [(0,0) for i in range(10)] 
        self.ball_velocity = (0,0)
+       self.ball_velocity_value = 0
        self.ball_direction = (1,1)
        self.ball_acceleration = (0,0)
+       self.ball_acceleration_value = 0
        self.gravity_strength = 0.1
        self.keys_strength = 0.1
        self.last_controls = [0,0,0,0,0]
@@ -289,13 +297,18 @@ class Bonk():
         if len(self.position_list) == self.avg_len:
             avg_velocity = (np.array(self.position_list[-1]) - np.array(self.position_list[-self.avg_len])) / (self.avg_len-1) * self.frame_rate
             self.velocity_list.append(tuple(avg_velocity))
+            self.velocity_value_list.append(np.linalg.norm(avg_velocity))
         
-        if len(self.velocity_list) == self.avg_len:
+        if len(self.velocity_list) == self.avg_len and len(self.velocity_value_list) == self.avg_len:
             avg_accel = (np.array(self.velocity_list[-1]) - np.array(self.velocity_list[-self.avg_len])) / (self.avg_len-1) * self.frame_rate
+            avg_accel_value = (self.velocity_value_list[-1] - self.velocity_value_list[-self.avg_len]) / (self.avg_len-1) * self.frame_rate
             self.acceleration_list.append(tuple(avg_accel))
+            self.acceleration_value_list.append(avg_accel_value)
             
             self.ball_velocity = self.velocity_list[-1]
+            self.ball_velocity_value = self.velocity_value_list[-1]
             self.ball_acceleration = self.acceleration_list[-1]
+            self.ball_acceleration_value = self.acceleration_value_list[-1]
             
             self.gravity_strength = 25.46 * self.ball_radius
             self.keys_strength = 15.65 * self.ball_radius
@@ -462,6 +475,8 @@ class Bonk():
         
     
 
-bonk = Bonk()
-
-bonk.mainLoop()
+if __name__ == '__main__':
+    bonk = Bonk()
+    
+    bonk.mainLoop()
+       
