@@ -1,5 +1,5 @@
 # Bonk
-This is a program that can predict and control the trajectory of the ball in bonk.io
+This is a program that can predict and control the trajectory of the ball in thr online game bonk.io
 The program captures the screen of the game and makes a preview window with the ball trajectory and target appears on the side
 Default settings are the WASD keys
 Its best to put your browser window on one half your screen so there is room for the preview window next to it
